@@ -17,7 +17,6 @@ phases:
   build:
     commands:
       - npm run-script build
-      - rm -rf
 
 artifacts:
   type: zip
