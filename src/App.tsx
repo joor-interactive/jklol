@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, createContext } from 'react';
 import { fromEvent, Observable, empty, Subject } from 'rxjs';
 import logo from './logo.svg';
 import './App.css';
+import 'prismjs/themes/prism-dark.css'
 import Contractors from './Contractors'
 import { dave, slim } from './Contractors/ListOfContractors'
 import { PullRequest } from './PullRequests/PullRequest';

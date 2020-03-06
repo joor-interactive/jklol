@@ -1,12 +1,13 @@
 import React, { useContext, useState, useEffect } from "react"
+import Prism from 'prismjs'
 import { useRequestChars } from "../TextHanders/basicHandler"
 import { AppContext } from "../App";
 import { scan, map } from 'rxjs/operators';
 
 const javascript = `
 const express = require('express')\n
-const app = express()\n
-const port = 3000\n
+\tconst app = express()\n
+\tconst port = 3000\n
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
@@ -29,10 +30,9 @@ const CodeWindow = ({charactersPerKeystroke = 3}) => {
     // when you are ready to emit progress... 
     // snippetProgress.next(progress);
 
+    const html = Prism.highlight(text, Prism.languages.javascript, 'javascript')
     return (
-        <pre style={{textAlign: 'left'}}>
-            {text}
-        </pre>
+    <pre><code className="language-javascript" dangerouslySetInnerHTML={{ __html: html }}></code></pre>
     )
 }
 

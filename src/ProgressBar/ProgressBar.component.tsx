@@ -7,7 +7,7 @@ type ProgressBarProps = {
 }
 const ProgressBar: React.FC<ProgressBarProps> = ({ progressAmount }) => {
     return (
-        <div style={{ position: 'relative', width: `${totalWidth}px`, height: '40px', background: 'black'}}>
+        <div style={{ position: 'relative', width: `${totalWidth}px`, height: '40px', background: 'white', border: '1px solid black'}}>
             <div style={{ position: 'absolute', width: `${progressAmount * totalWidth}px`, height: '40px', background: 'red'}}></div>
         </div>
     );
