@@ -17,11 +17,7 @@ export const AppContext = createContext({
 const Consumer = () => {
   const { keyPressObservable } = useContext(AppContext)
   keyPressObservable.subscribe(console.log)
-  return (
-  <div>
-    HIIIIIIII
-  </div>
-  )
+  return <></>
 }
 
 function App() {

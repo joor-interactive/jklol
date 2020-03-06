@@ -6,9 +6,11 @@ type ProgressBarProps = {
     progressAmount: number
 }
 const ProgressBar: React.FC<ProgressBarProps> = ({ progressAmount }) => {
+
+    const rgb = `rgb(${255*(1-progressAmount)},${255*progressAmount},0)`;
     return (
         <div style={{ position: 'relative', width: `${totalWidth}px`, height: '40px', background: 'white', border: '1px solid black'}}>
-            <div style={{ position: 'absolute', width: `${progressAmount * totalWidth}px`, height: '40px', background: 'red'}}></div>
+            <div style={{ position: 'absolute', width: `${progressAmount * totalWidth}px`, height: '40px', background: rgb}}></div>
         </div>
     );
 };
