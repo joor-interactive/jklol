@@ -13,15 +13,12 @@ phases:
   pre_build:
     commands:
       # Discover and run unit tests in the 'tests' directory
-      # - CI=true npm test
-      - echo "running pre-build"
+      - CI=true npm test
   build:
     commands:
-      # - npm run-script build
-      - echo "building..."
-      - echo "hello" > index.html
+      - npm run-script build
 
 artifacts:
   type: zip
   files:
-    - index.html
+    - build/*
