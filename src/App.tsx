@@ -1,5 +1,5 @@
-import React, { useContext, useRef, createContext } from "react";
-import { fromEvent, Observable, empty, Subject } from "rxjs";
+import React, { useRef, createContext, useEffect, useState } from "react";
+import { fromEvent, Observable, empty, Subject, merge } from "rxjs";
 import "./App.css";
 import "prismjs/themes/prism-dark.css";
 import Contractors from "./Contractors";
@@ -10,25 +10,51 @@ import CodeWindow from "./CodeWindow/CodeWindow";
 
 export const AppContext = createContext({
   keyPressObservable: empty() as Observable<KeyboardEvent>,
+  focusHiddenInput: () => {},
   prCreatedSubject: new Subject<PullRequest>()
 });
 
 function App() {
-  const keyPressObservable = useRef<Observable<KeyboardEvent>>(
-    fromEvent<KeyboardEvent>(document, "keypress")
-  );
+  const [keyPressObservable, setKeyPressObservable] = useState<
+    Observable<KeyboardEvent>
+  >(empty() as Observable<KeyboardEvent>);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    if (inputRef.current) {
+      const hiddenInputKeypressObservable = fromEvent<KeyboardEvent>(
+        inputRef.current,
+        "keypress"
+      );
+      const documentKeyPressObservable = fromEvent<KeyboardEvent>(
+        document,
+        "keypress"
+      );
+
+      setKeyPressObservable(
+        merge(hiddenInputKeypressObservable, documentKeyPressObservable)
+      );
+    }
+  }, [inputRef]);
+
   const contractors = [dave, slim];
   return (
     <AppContext.Provider
       value={{
-        keyPressObservable: keyPressObservable.current,
+        keyPressObservable,
+        focusHiddenInput: () => inputRef.current?.focus(),
         prCreatedSubject: new Subject<PullRequest>()
       }}
     >
       <div className="App">
         <ProgressBar />
         <CodeWindow />
-        <br />
+        <input
+          type="text"
+          style={{ position: "absolute", left: -1000 }}
+          ref={inputRef}
+        />
         <Contractors contractors={contractors} />
       </div>
     </AppContext.Provider>

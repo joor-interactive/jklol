@@ -57,7 +57,7 @@ const CodeWindow = ({ charactersPerKeystroke = 3 }) => {
   ]);
   const [snippet, setActiveSnippet] = useState(javascript);
 
-  const { keyPressObservable } = useContext(AppContext);
+  const { keyPressObservable, focusHiddenInput } = useContext(AppContext);
 
   useEffect(() => {
     const observable = keyPressObservable
@@ -104,7 +104,11 @@ const CodeWindow = ({ charactersPerKeystroke = 3 }) => {
           text.language
         );
         return (
-          <pre className={`language-${text.language}`} key={index}>
+          <pre
+            className={`language-${text.language}`}
+            key={index}
+            onClick={() => focusHiddenInput()}
+          >
             <code
               className={`language-${text.language}`}
               dangerouslySetInnerHTML={{ __html: html }}
