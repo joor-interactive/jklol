@@ -97,7 +97,7 @@ const CodeWindow = ({ charactersPerKeystroke = 3 }) => {
 
   return (
     <>
-      {[...texts].reverse().map((text, index) => {
+      {texts.map((text, index) => {
         const html = Prism.highlight(
           text.code,
           Prism.languages[text.language],
