@@ -1,5 +1,6 @@
 import React, { useRef, createContext, useEffect, useState } from "react";
 import { fromEvent, Observable, empty, Subject, merge } from "rxjs";
+import styled from "styled-components";
 import "./App.css";
 import "prismjs/themes/prism-dark.css";
 import Contractors from "./Contractors";
@@ -13,6 +14,11 @@ export const AppContext = createContext({
   focusHiddenInput: () => {},
   prCreatedSubject: new Subject<PullRequest>()
 });
+
+const HiddenInput = styled.input`
+  position: absolute;
+  left: -1000px;
+`;
 
 function App() {
   const [keyPressObservable, setKeyPressObservable] = useState<
@@ -50,11 +56,7 @@ function App() {
       <div className="App">
         <ProgressBar />
         <CodeWindow />
-        <input
-          type="text"
-          style={{ position: "absolute", left: -1000 }}
-          ref={inputRef}
-        />
+        <HiddenInput type="text" ref={inputRef} />
         <Contractors contractors={contractors} />
       </div>
     </AppContext.Provider>
