@@ -1,18 +1,15 @@
-import React, { useRef, createContext, useEffect, useState } from "react";
-import { fromEvent, Observable, empty, Subject, merge } from "rxjs";
+import React, {createContext, useContext, useEffect} from "react";
+import {fromEvent} from "rxjs";
 import styled from "styled-components";
 import "./App.css";
 import "prismjs/themes/prism-dark.css";
-import Contractors from "./Contractors";
-import { dave, slim } from "./Contractors/ListOfContractors";
-import { PullRequest } from "./PullRequests/PullRequest";
 import ProgressBar from "./ProgressBar";
 import CodeWindow from "./CodeWindow/CodeWindow";
+import GameEvents from "./Simuation/sim";
 
 export const AppContext = createContext({
-  keyPressObservable: empty() as Observable<KeyboardEvent>,
   focusHiddenInput: () => {},
-  prCreatedSubject: new Subject<PullRequest>()
+  gameEvents: new GameEvents(),
 });
 
 const HiddenInput = styled.input`
@@ -20,44 +17,34 @@ const HiddenInput = styled.input`
   left: -1000px;
 `;
 
-function App() {
-  const [keyPressObservable, setKeyPressObservable] = useState<
-    Observable<KeyboardEvent>
-  >(empty() as Observable<KeyboardEvent>);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+const KeyboardListener = () => {
+  const {gameEvents} = useContext(AppContext);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
-    if (inputRef.current) {
-      const hiddenInputKeypressObservable = fromEvent<KeyboardEvent>(
-        inputRef.current,
-        "keypress"
-      );
-      const documentKeyPressObservable = fromEvent<KeyboardEvent>(
-        document,
-        "keypress"
-      );
 
-      setKeyPressObservable(
-        merge(hiddenInputKeypressObservable, documentKeyPressObservable)
-      );
+    fromEvent<KeyboardEvent>(
+          document,
+          "keypress"
+      ).subscribe(e => gameEvents.OnKeyPress.next(e))
     }
-  }, [inputRef]);
+  });
 
-  const contractors = [dave, slim];
+};
+
+function App() {
+
   return (
     <AppContext.Provider
       value={{
-        keyPressObservable,
-        focusHiddenInput: () => inputRef.current?.focus(),
-        prCreatedSubject: new Subject<PullRequest>()
+        gameEvents: new GameEvents()
       }}
     >
       <div className="App">
+        <KeyboardListener/>
         <ProgressBar />
         <CodeWindow />
-        <HiddenInput type="text" ref={inputRef} />
-        <Contractors contractors={contractors} />
+        <HiddenInput type="text"/>
       </div>
     </AppContext.Provider>
   );
