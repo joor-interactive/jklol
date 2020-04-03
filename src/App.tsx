@@ -6,6 +6,8 @@ import ProgressBar from "./ProgressBar";
 import CodeWindow from "./CodeWindow/CodeWindow";
 import GameEvents from "./Simuation/GameEvents";
 import {KeyboardListener} from "./KeyboardListener";
+import Contractors from "./Contractors/contractors";
+import dave from "./Contractors/ListOfContractors/dave";
 
 export const AppContext = createContext({
    gameEvents: new GameEvents()
@@ -25,6 +27,7 @@ function App() {
             <ProgressBar/>
             <CodeWindow/>
             <HiddenInput type="text"/>
+            <Contractors contractors={[dave]}/>
          </div>
       </AppContext.Provider>
    );

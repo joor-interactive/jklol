@@ -59,7 +59,7 @@ const CodeWindow = () => {
   const { gameEvents } = useContext(AppContext);
 
   useEffect(() => {
-    const observable = gameEvents.$OnProgress
+    const observable = gameEvents.$OnProgressUpdate
       .pipe(map(e => e.percentToPr))
       .subscribe(e => {
          setTexts((curr: Snippet[]) => {

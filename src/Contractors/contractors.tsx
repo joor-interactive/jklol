@@ -1,20 +1,28 @@
-import React from "react";
+import React from 'react';
 import Contractor from "./type"
+import {useContext, useEffect} from "react";
+import {AppContext} from "../App";
+import {interval} from "rxjs";
 
-const contractorRow = (contractor: Contractor) => {
-    return <div>{contractor.name}</div>
+const ContractorRow = ({contractor} : {contractor: Contractor}) => {
+   const {gameEvents} = useContext(AppContext);
+   useEffect(() => {
+      const obs = interval(contractor.speedMs).subscribe(() => {
+         gameEvents.OnProgress.next(contractor.quality)
+      });
+      return () => obs.unsubscribe();
+   });
+   return <div>{contractor.name}</div>
 }
 
 type ContractorsProps = {
-    contractors: Contractor[]
+   contractors: Contractor[]
 }
 
 const Contractors: React.FC<ContractorsProps> = ({contractors}) => {
-    return <div>
-        <table>
-            { contractors.map(contractor => contractorRow(contractor)) }
-        </table>
-    </div>
+   return <div>
+         {contractors.map(contractor => <ContractorRow contractor={contractor}/>)}
+   </div>
 }
 
-export default Contractors; 
+export default Contractors;

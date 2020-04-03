@@ -1,5 +1,5 @@
-import {Observable, Subject} from "rxjs";
-import {filter, map, scan} from "rxjs/operators";
+import {Observable, partition, Subject} from "rxjs";
+import {filter, groupBy, map, scan} from "rxjs/operators";
 import {PR_BATCH} from "./Settings";
 
 export class ProgressUpdate {
@@ -13,8 +13,11 @@ export default class GameEvents {
    $OnKeyPress: Observable<KeyboardEvent> = this.OnKeyPress.asObservable();
 
    OnProgress: Subject<number> = new Subject<number>();
-   $OnProgress: Observable<ProgressUpdate> = this
-      .OnProgress.asObservable()
+   $OnTotalProgress : Observable<number> = this.OnProgress.asObservable()
+      .pipe(scan((acc, current) => acc + current, 0));
+
+   $OnProgressUpdate: Observable<ProgressUpdate> = this
+      .$OnTotalProgress
       .pipe(map(e => new ProgressUpdate(e, (e % PR_BATCH) / PR_BATCH)));
 
    OnPullRequest: Subject<number> = new Subject<number>();
@@ -23,11 +26,12 @@ export default class GameEvents {
    constructor() {
       this.$OnKeyPress
          .pipe(map(() => 1))
-         .pipe(scan((acc, current) => acc + current, 0))
          .subscribe(e => this.OnProgress.next(e));
 
-      this.OnProgress.asObservable()
-         .pipe(filter(e => e % PR_BATCH == 0))
+      this.$OnTotalProgress
+         .pipe(map(e => e / PR_BATCH))
+         .pipe(groupBy((e) => Math.floor(e)))
+         .pipe(filter(e => e.key > 0))
          .subscribe(() => this.OnPullRequest.next(1));
    }
 }

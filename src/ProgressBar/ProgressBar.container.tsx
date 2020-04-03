@@ -8,7 +8,7 @@ const ProgressBarContainer = () => {
    const {gameEvents} = useContext(AppContext);
    const [progress, setProgress] = useState(0);
    useEffect(() => {
-      const obs = gameEvents.$OnProgress
+      const obs = gameEvents.$OnProgressUpdate
          .subscribe(e => setProgress(e.percentToPr));
       return () => obs.unsubscribe();
    }, []);
