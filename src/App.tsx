@@ -1,18 +1,16 @@
-import React, { useRef, createContext, useEffect, useState } from "react";
-import { fromEvent, Observable, empty, Subject, merge } from "rxjs";
+import React, {createContext} from "react";
 import styled from "styled-components";
 import "./App.css";
 import "prismjs/themes/prism-dark.css";
-import Contractors from "./Contractors";
-import { dave, slim } from "./Contractors/ListOfContractors";
-import { PullRequest } from "./PullRequests/PullRequest";
 import ProgressBar from "./ProgressBar";
 import CodeWindow from "./CodeWindow/CodeWindow";
+import GameEvents from "./Simuation/GameEvents";
+import {KeyboardListener} from "./KeyboardListener";
+import Contractors from "./Contractors/contractors";
+import dave from "./Contractors/ListOfContractors/dave";
 
 export const AppContext = createContext({
-  keyPressObservable: empty() as Observable<KeyboardEvent>,
-  focusHiddenInput: () => {},
-  prCreatedSubject: new Subject<PullRequest>()
+   gameEvents: new GameEvents()
 });
 
 const HiddenInput = styled.input`
@@ -21,46 +19,18 @@ const HiddenInput = styled.input`
 `;
 
 function App() {
-  const [keyPressObservable, setKeyPressObservable] = useState<
-    Observable<KeyboardEvent>
-  >(empty() as Observable<KeyboardEvent>);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    if (inputRef.current) {
-      const hiddenInputKeypressObservable = fromEvent<KeyboardEvent>(
-        inputRef.current,
-        "keypress"
-      );
-      const documentKeyPressObservable = fromEvent<KeyboardEvent>(
-        document,
-        "keypress"
-      );
-
-      setKeyPressObservable(
-        merge(hiddenInputKeypressObservable, documentKeyPressObservable)
-      );
-    }
-  }, [inputRef]);
-
-  const contractors = [dave, slim];
-  return (
-    <AppContext.Provider
-      value={{
-        keyPressObservable,
-        focusHiddenInput: () => inputRef.current?.focus(),
-        prCreatedSubject: new Subject<PullRequest>()
-      }}
-    >
-      <div className="App">
-        <ProgressBar />
-        <CodeWindow />
-        <HiddenInput type="text" ref={inputRef} />
-        <Contractors contractors={contractors} />
-      </div>
-    </AppContext.Provider>
-  );
+   const gameEvents = new GameEvents();
+   return (
+      <AppContext.Provider value={{gameEvents}}>
+         <div className="App">
+            <KeyboardListener/>
+            <ProgressBar/>
+            <CodeWindow/>
+            <HiddenInput type="text"/>
+            <Contractors contractors={[dave]}/>
+         </div>
+      </AppContext.Provider>
+   );
 }
 
 export default App;

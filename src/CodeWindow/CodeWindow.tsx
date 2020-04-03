@@ -1,11 +1,11 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Prism from "prismjs/components/prism-core";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-python";
 
-import { AppContext } from "../App";
-import { scan } from "rxjs/operators";
+import {AppContext} from "../App";
+import {map} from "rxjs/operators";
 
 type Snippet = {
   language: string;
@@ -51,49 +51,44 @@ const getRandomSnippet = () =>
     Math.floor(Math.random() * Object.keys(snippets).length)
   ];
 
-const CodeWindow = ({ charactersPerKeystroke = 3 }) => {
+const CodeWindow = () => {
   const [texts, setTexts] = useState<Snippet[]>([
     { language: "javascript", code: "" }
   ]);
   const [snippet, setActiveSnippet] = useState(javascript);
-
-  const { keyPressObservable, focusHiddenInput } = useContext(AppContext);
+  const { gameEvents } = useContext(AppContext);
 
   useEffect(() => {
-    const observable = keyPressObservable
-      .pipe(
-        scan(
-          (acc, e) => (acc + charactersPerKeystroke) % snippet.code.length,
-          0
-        )
-      )
+    const observable = gameEvents.$OnProgressUpdate
+      .pipe(map(e => e.percentToPr))
       .subscribe(e => {
-        if (e + charactersPerKeystroke >= snippet.code.length) {
-          const nextSnippet = getRandomSnippet();
-          setActiveSnippet(nextSnippet);
-          setTexts(curr => {
-            const [, ...rest] = curr;
-            return [
-              { language: nextSnippet.language, code: "" },
-              snippet,
-              ...rest
-            ];
-          });
-        } else {
-          setTexts((curr: Snippet[]) => {
+         setTexts((curr: Snippet[]) => {
             const [head, ...rest] = curr;
             const newHead = {
               language: head.language,
-              code:
-                head.code +
-                snippet.code.substring(e - charactersPerKeystroke, e)
+              code: snippet.code.substring(0, e * snippet.code.length)
             };
             return [newHead, ...rest];
           });
-        }
       });
-    return () => observable.unsubscribe();
-  }, [keyPressObservable, charactersPerKeystroke, snippet]);
+
+    const observable2 = gameEvents.$OnPullRequest
+      .subscribe(() => {
+         const nextSnippet = getRandomSnippet();
+         setActiveSnippet(nextSnippet);
+          setTexts(curr => {
+             return [
+              { language: nextSnippet.language, code: "" },
+              ...curr
+            ];
+          });
+      });
+
+    return () => {
+      observable.unsubscribe();
+      observable2.unsubscribe();
+    }
+  }, [snippet]);
 
   return (
     <>
@@ -107,12 +102,11 @@ const CodeWindow = ({ charactersPerKeystroke = 3 }) => {
           <pre
             className={`language-${text.language}`}
             key={index}
-            onClick={() => focusHiddenInput()}
           >
             <code
               className={`language-${text.language}`}
               dangerouslySetInnerHTML={{ __html: html }}
-            ></code>
+            />
           </pre>
         );
       })}
